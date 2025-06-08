@@ -1,6 +1,7 @@
 package com.TNTStudios.vicefinal.registry;
 
 import com.TNTStudios.vicefinal.entity.SrTiempoEntity;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
@@ -21,6 +22,6 @@ public class ModEntities {
     );
 
     public static void register() {
-        // No es necesario código aquí, el registro ocurre arriba
+        FabricDefaultAttributeRegistry.register(SR_TIEMPO, SrTiempoEntity.createAttributes());
     }
 }
