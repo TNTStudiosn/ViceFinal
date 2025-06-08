@@ -9,6 +9,7 @@ import com.TNTStudios.vicefinal.registry.ModScreenHandlers;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 
+
 public class Vicefinal implements ModInitializer {
 
     @Override

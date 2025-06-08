@@ -65,32 +65,45 @@ public class SrTiempoEntity extends HostileEntity implements GeoEntity {
 
     // --- GESTIÓN DE PERSISTENCIA Y DATOS ---
 
+
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
         nbt.putBoolean("isWalking", controller.isWalking());
         nbt.putBoolean("isAggressive", controller.isAggressive());
-        // Guardo el estado de vulnerabilidad para que persista.
-        nbt.putBoolean("isVulnerable", this.isVulnerable);
+        nbt.putBoolean("isVulnerable", this.isVulnerable());
+
+        // [CORREGIDO] No puedo llamar a .name() en un RawAnimation.
+        // En su lugar, identifico la animación base actual y guardo un string único para reconocerla después.
+        String baseAnimIdentifier = ""; // Un string vacío será mi valor por defecto (para idle/walk).
+        RawAnimation currentBaseAnim = controller.getBaseAnimation();
+
+        // Asumo que SrTiempoController.STATUE y .CHANNEL son tus constantes estáticas de tipo RawAnimation.
+        if (currentBaseAnim == SrTiempoController.STATUE) {
+            baseAnimIdentifier = "STATUE";
+        } else if (currentBaseAnim == SrTiempoController.CHANNEL) {
+            baseAnimIdentifier = "CHANNEL";
+        }
+        nbt.putString("baseAnimation", baseAnimIdentifier);
     }
 
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
         super.readCustomDataFromNbt(nbt);
-        controller.setWalking(nbt.getBoolean("isWalking"));
-        controller.setAggressive(nbt.getBoolean("isAggressive"));
-        this.setVulnerable(nbt.getBoolean("isVulnerable")); // Restauro el estado.
 
-        // Restauro la animación correcta al cargar el mundo.
-        if (this.isDead()) {
-            controller.playDeath();
-        } else if (controller.isWalking()) {
-            controller.playWalk();
-        } else if (controller.isAggressive()) {
-            controller.playChannel();
+        // [CORREGIDO] Restauro el estado comparando el string que guardé, en lugar de llamar a .name().
+        String baseAnimIdentifier = nbt.getString("baseAnimation");
+
+        if ("STATUE".equals(baseAnimIdentifier)) {
+            controller.setBehaviorStatue();
+        } else if ("CHANNEL".equals(baseAnimIdentifier)) {
+            controller.setBehaviorAttack();
+        } else if (nbt.getBoolean("isWalking")) {
+            controller.setBehaviorWalk();
         } else {
-            controller.playIdle();
+            controller.setBehaviorIdle();
         }
+        this.setVulnerable(nbt.getBoolean("isVulnerable"));
     }
 
     // --- LÓGICA DE DAÑO Y VULNERABILIDAD ---
@@ -159,10 +172,12 @@ public class SrTiempoEntity extends HostileEntity implements GeoEntity {
         }
         boolean success = super.tryAttack(target);
         if (success) {
-            this.controller.playSlap();
+            // [CORREGIDO] El método correcto para disparar la animación es "triggerSlap", no "playSlap".
+            this.controller.triggerSlap();
         }
         return success;
     }
+
 
     public static DefaultAttributeContainer.Builder createAttributes() {
         return HostileEntity.createHostileAttributes()
@@ -177,24 +192,44 @@ public class SrTiempoEntity extends HostileEntity implements GeoEntity {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
-        controllerRegistrar.add(new AnimationController<>(this, "controller", 0, this::predicate));
+        // Añado un pequeño tiempo de transición (5 ticks = 0.25s) para que los cambios
+        // de animación (ej. de caminar a atacar) sean más suaves y fluidos.
+        controllerRegistrar.add(new AnimationController<>(this, "main_controller", 5, this::predicate));
     }
 
     private <E extends GeoEntity> PlayState predicate(AnimationState<E> state) {
-        // Si estoy muerto, la animación de muerte tiene prioridad absoluta.
+        AnimationController<?> animController = state.getController();
+
+        // Prioridad 1: La animación de muerte es absoluta y no se puede interrumpir.
+        // Uso setAnimation porque solo necesito establecerla una vez.
         if (this.isDead()) {
-            return state.setAndContinue(RawAnimation.begin().thenPlay("animation.srtiempo.death"));
+            animController.setAnimation(SrTiempoController.DEATH);
+            return PlayState.CONTINUE;
         }
 
-        // Prioridad 1: Si la entidad se está moviendo (según el motor del juego) Y mi lógica permite caminar,
-        // fuerzo la animación de caminar. Esto resuelve el "caminar en idle".
-        if (state.isMoving() && this.controller.isWalking()) {
-            return state.setAndContinue(RawAnimation.begin().thenLoop("animation.srtiempo.walk"));
+        // Prioridad 2: Verifico si mi controlador lógico solicitó una animación de un solo uso.
+        RawAnimation oneShot = this.controller.consumeRequestedOneShot();
+        if (oneShot != null) {
+            // Si hay una, la disparo. El controlador de GeckoLib la reproducirá una vez y se detendrá.
+            // setAnimation la iniciará. Como no es en bucle, no se repetirá.
+            animController.setAnimation(oneShot);
+            return PlayState.CONTINUE;
         }
 
-        // Prioridad 2: Si no camino, simplemente reproduzco la animación que mi controlador indica.
-        // Esto mantiene la coherencia entre los comandos y lo que se ve en el juego.
-        return state.setAndContinue(this.controller.getCurrentAnimation());
+        // Prioridad 3: Si el controlador de GeckoLib está "detenido", significa que
+        // terminó una animación de un solo uso o que la entidad acaba de aparecer.
+        // En este caso, decido qué animación en bucle debe reproducirse a continuación.
+        if (animController.getAnimationState() == AnimationController.State.STOPPED) {
+            // Decido entre la animación de caminar y la animación base actual (idle, channel, etc.).
+            if (state.isMoving() && this.controller.isWalking()) {
+                animController.setAnimation(SrTiempoController.WALK);
+            } else {
+                animController.setAnimation(this.controller.getBaseAnimation());
+            }
+        }
+
+        // En todos los casos, devuelvo CONTINUE para dejar que GeckoLib maneje el estado.
+        return PlayState.CONTINUE;
     }
 
     // El resto de la clase (tick, onRemoved, etc.) permanece igual.

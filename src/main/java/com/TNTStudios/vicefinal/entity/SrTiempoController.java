@@ -1,113 +1,97 @@
 // RUTA: src/main/java/com/TNTStudios/vicefinal/entity/SrTiempoController.java
 package com.TNTStudios.vicefinal.entity;
 
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.core.animation.RawAnimation;
 
 /**
- * Controlador para SrTiempoEntity.
- * Desde aquí el mod puede controlar la lógica del boss.
+ * Mi nuevo controlador lógico para el Sr. Tiempo.
+ * Esta clase ya no se encarga de decidir qué animación reproducir en cada tick,
+ * sino que mantiene el estado actual (ej: "está caminando", "está agresivo") y
+ * gestiona las solicitudes de animaciones de un solo uso, como los ataques.
  */
 public class SrTiempoController {
 
-    private RawAnimation currentAnimation;
+    // --- DEFINICIONES DE ANIMACIÓN (CONSTANTES) ---
+    // Defino todas mis animaciones como constantes estáticas para evitar errores
+    // de escritura y para tener un único lugar donde gestionarlas.
+
+    // Animaciones en Bucle
+    public static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.srtiempo.idle");
+    public static final RawAnimation WALK = RawAnimation.begin().thenLoop("animation.srtiempo.walk");
+    public static final RawAnimation CHANNEL = RawAnimation.begin().thenLoop("animation.srtiempo.channel");
+    public static final RawAnimation STATUE = RawAnimation.begin().thenLoop("animation.srtiempo.statue");
+
+    // Animaciones de un Solo Uso (One-Shot)
+    public static final RawAnimation SLAP = RawAnimation.begin().thenPlay("animation.srtiempo.slap");
+    public static final RawAnimation CHARGE_UP = RawAnimation.begin().thenPlay("animation.srtiempo.charge_up");
+    public static final RawAnimation TURN_TIME = RawAnimation.begin().thenPlay("animation.srtiempo.turn_time");
+    public static final RawAnimation DEATH = RawAnimation.begin().thenPlay("animation.srtiempo.death");
+
+    // --- ESTADO INTERNO ---
     private boolean isWalking = false;
     private boolean isAggressive = false;
 
-    public SrTiempoController() {
-        // Por defecto, comienza en modo 'idle' (quieto), no 'statue'.
-        // Así, 'statue' se convierte en un estado que activamos a propósito.
-        this.playIdle();
-    }
+    // La animación base es la que se reproduce en bucle por defecto.
+    private RawAnimation baseAnimation = IDLE;
 
-    // API pública:
+    // Aquí guardo la solicitud para una animación de un solo uso.
+    @Nullable
+    private RawAnimation requestedOneShot = null;
 
-    public void playIdle() {
-        this.currentAnimation = RawAnimation.begin().thenLoop("animation.srtiempo.idle");
-    }
-
-    public void playWalk() {
-        this.currentAnimation = RawAnimation.begin().thenLoop("animation.srtiempo.walk");
-    }
+    // --- GETTERS Y SETTERS DE ESTADO ---
+    public boolean isWalking() { return this.isWalking; }
+    public boolean isAggressive() { return this.isAggressive; }
+    public boolean canMove() { return this.isWalking && baseAnimation != STATUE; }
+    public RawAnimation getBaseAnimation() { return this.baseAnimation; }
 
     /**
-     * [CORREGIDO] La animación de 'slap' ahora vuelve a un estado de loop de forma correcta.
+     * Devuelve la animación de un solo uso que se ha solicitado y la "consume" (pone a null)
+     * para que no se vuelva a disparar en el siguiente tick.
      */
-    public void playSlap() {
-        // Determino el nombre de la siguiente animación en bucle.
-        String nextAnimationName = this.isAggressive
-                ? "animation.srtiempo.channel"
-                : "animation.srtiempo.idle";
-
-        // Primero reproduzco 'slap' una vez, y luego entro en bucle con la siguiente animación.
-        this.currentAnimation = RawAnimation.begin().thenPlay("animation.srtiempo.slap").thenLoop(nextAnimationName);
+    @Nullable
+    public RawAnimation consumeRequestedOneShot() {
+        RawAnimation anim = this.requestedOneShot;
+        this.requestedOneShot = null;
+        return anim;
     }
 
-    /**
-     * [CORREGIDO] La animación 'turn_time' ahora vuelve a un estado de loop de forma correcta.
-     */
-    public void playTurnTime() {
-        // Determino el nombre de la siguiente animación en bucle.
-        String nextAnimationName = this.isAggressive
-                ? "animation.srtiempo.channel"
-                : "animation.srtiempo.idle";
+    // --- MÉTODOS DE CONTROL (LLAMADOS DESDE COMANDOS O IA) ---
 
-        // Primero reproduzco 'turn_time' una vez, y luego entro en bucle con la siguiente animación.
-        this.currentAnimation = RawAnimation.begin().thenPlay("animation.srtiempo.turn_time").thenLoop(nextAnimationName);
+    // Comportamientos base
+    public void setBehaviorIdle() {
+        this.isWalking = false;
+        this.isAggressive = false;
+        this.baseAnimation = IDLE;
     }
 
-    public void playChannel() {
-        this.currentAnimation = RawAnimation.begin().thenLoop("animation.srtiempo.channel");
+    public void setBehaviorWalk() {
+        this.isWalking = true;
+        this.isAggressive = false;
+        this.baseAnimation = WALK;
     }
 
-    /**
-     * [CORREGIDO] La animación 'charge_up' ahora vuelve a un estado de loop de forma correcta.
-     */
-    public void playChargeUp() {
-        // Determino el nombre de la siguiente animación en bucle.
-        String nextAnimationName = this.isAggressive
-                ? "animation.srtiempo.channel"
-                : "animation.srtiempo.idle";
-
-        // Primero reproduzco 'charge_up' una vez, y luego entro en bucle con la siguiente animación.
-        this.currentAnimation = RawAnimation.begin().thenPlay("animation.srtiempo.charge_up").thenLoop(nextAnimationName);
+    public void setBehaviorAttack() {
+        this.isWalking = false;
+        this.isAggressive = true;
+        this.baseAnimation = CHANNEL;
     }
 
-    /**
-     * [MEJORADO] La animación de muerte no loopea, se queda en el último frame.
-     */
-    public void playDeath() {
-        this.currentAnimation = RawAnimation.begin().thenPlay("animation.srtiempo.death");
+    public void setBehaviorStatue() {
+        this.isWalking = false;
+        this.isAggressive = false;
+        this.baseAnimation = STATUE;
     }
 
-    public void playStatue() {
-        this.currentAnimation = RawAnimation.begin().thenLoop("animation.srtiempo.statue");
+    public void triggerChannel() {
+        this.setBehaviorAttack();
     }
 
-    public RawAnimation getCurrentAnimation() {
-        return currentAnimation;
-    }
 
-    // Este método ahora determina si la IA de movimiento (caminar o atacar) debe activarse.
-    public boolean canMove() {
-        return this.isWalking || this.isAggressive;
-    }
+    // Disparadores de animaciones de ataque (one-shot)
+    public void triggerSlap() { this.requestedOneShot = SLAP; }
+    public void triggerChargeUp() { this.requestedOneShot = CHARGE_UP; }
+    public void triggerTurnTime() { this.requestedOneShot = TURN_TIME; }
 
-    // Este método determina si la IA de ataque específico (MeleeAttackGoal) debe activarse.
-    public boolean isAggressive() {
-        return this.isAggressive;
-    }
-
-    // Este método determina si la IA de paseo (WanderAroundFarGoal) debe activarse.
-    public boolean isWalking() {
-        return this.isWalking;
-    }
-
-    // Setters para controlar el estado desde los comandos.
-    public void setWalking(boolean walking) {
-        this.isWalking = walking;
-    }
-
-    public void setAggressive(boolean aggressive) {
-        this.isAggressive = aggressive;
-    }
+    // No necesito un trigger para la muerte, ya que la entidad la gestiona con isDead().
 }
