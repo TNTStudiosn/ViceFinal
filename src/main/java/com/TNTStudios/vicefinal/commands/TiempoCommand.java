@@ -23,6 +23,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static net.minecraft.server.command.CommandManager.argument;
@@ -80,26 +81,26 @@ public class TiempoCommand {
      */
     private static int executeSpawn(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
-
-        // Primero, me aseguro de que no exista ya un jefe para evitar duplicados.
         if (!findAllBosses(source.getServer()).isEmpty()) {
             throw BOSS_ALREADY_EXISTS_EXCEPTION.create();
         }
-
         ServerPlayerEntity player = source.getPlayerOrThrow();
         ServerWorld world = player.getServerWorld();
-
-        // Creo la nueva instancia de la entidad.
-        // Utilizo mi registro de entidades para obtener el EntityType correcto.
         SrTiempoEntity boss = new SrTiempoEntity(ModEntities.SR_TIEMPO, world);
-
-        // Coloco al jefe en la posición del jugador que ejecutó el comando.
         boss.refreshPositionAndAngles(player.getX(), player.getY(), player.getZ(), player.getYaw(), 0.0F);
-
-        // Finalmente, lo añado al mundo para que aparezca.
-        world.spawnEntity(boss);
-
+        boolean spawned = world.spawnEntity(boss);
+        System.out.println("Entidad invocada: " + boss.getUuid() + ", ¿Añadida al mundo? " + spawned);
         source.sendFeedback(() -> Text.literal("Sr. Tiempo ha sido invocado.").formatted(Formatting.GOLD), true);
+
+        world.getServer().execute(() -> {
+            try {
+                Thread.sleep(1000); // Espera 1 segundo
+                List<SrTiempoEntity> bosses = findAllBosses(world.getServer());
+                System.out.println("Entidades después de 1 segundo: " + bosses.size());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
         return 1;
     }
 
@@ -213,11 +214,14 @@ public class TiempoCommand {
         return count;
     }
 
+    // Reemplaza la firma para devolver List en lugar de Collection
     private static List<SrTiempoEntity> findAllBosses(MinecraftServer server) {
         List<SrTiempoEntity> allBosses = new ArrayList<>();
         for (ServerWorld world : server.getWorlds()) {
-            allBosses.addAll(world.getEntitiesByClass(SrTiempoEntity.class, new Box(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY), Entity::isAlive));
+            // Seguimos usando tu EntityType registrado
+            allBosses.addAll(world.getEntitiesByType(ModEntities.SR_TIEMPO, entity -> true));
         }
         return allBosses;
     }
+
 }

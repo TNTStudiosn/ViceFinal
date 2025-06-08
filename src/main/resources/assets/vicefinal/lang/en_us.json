@@ -1,0 +1,22 @@
+{
+  "block.vicefinal.nucleo": "Núcleo",
+  "entity.vicefinal.sr_tiempo": "Sr. Tiempo",
+
+  "gui.vicefinal.nucleo.title": "Desactivación del Núcleo",
+
+  "text.vicefinal.nucleo.cooldown": "El núcleo está en enfriamiento. Espera %s segundos.",
+  "text.vicefinal.nucleo.in_use": "Alguien más ya está desactivando el núcleo.",
+  "text.vicefinal.minigame.fail": "Has fallado. El núcleo entra en enfriamiento.",
+  "text.vicefinal.minigame.win": "¡El núcleo ha sido destruido!",
+  "text.vicefinal.wave.title": "§c§l¡Oleada en camino!",
+  "text.vicefinal.wave.subtitle": "El núcleo en %s está siendo protegido.",
+
+  "commands.vicefinal.tiempo.error.not_found": "No se encontró a Sr. Tiempo en ningún mundo del servidor.",
+  "commands.vicefinal.tiempo.error.already_exists": "Ya existe una instancia de Sr. Tiempo. Usa '/tiempo eliminar' primero.",
+  "commands.vicefinal.tiempo.spawn.success": "Sr. Tiempo ha sido invocado.",
+  "commands.vicefinal.tiempo.behavior.success": "Comportamiento '%s' aplicado a %s instancias de Sr. Tiempo.",
+  "commands.vicefinal.tiempo.attack.temporal.player_message": "¡El tiempo se ha detenido a tu alrededor!",
+  "commands.vicefinal.tiempo.attack.temporal.success": "Ataque temporal desatado desde %s instancias de Sr. Tiempo en un rango de %s bloques.",
+  "commands.vicefinal.tiempo.anim.success": "Animación '%s' ejecutada en %s instancias.",
+  "commands.vicefinal.tiempo.eliminar.success": "Se eliminaron %s instancias de Sr. Tiempo del servidor."
+}

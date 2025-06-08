@@ -16,7 +16,7 @@ public class ModEntities {
             Registries.ENTITY_TYPE,
             new Identifier("vicefinal", "sr_tiempo"),
             FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, SrTiempoEntity::new)
-                    .dimensions(EntityDimensions.fixed(1.0f, 3.0f)) // tamaño del boss
+                    .dimensions(EntityDimensions.fixed(1.0f, 3.0f))
                     .trackRangeBlocks(80)
                     .build()
     );
