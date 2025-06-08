@@ -5,6 +5,13 @@ import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.screen.NamedScreenHandlerFactory;
+import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
@@ -21,6 +28,34 @@ public class Nucleo extends BlockWithEntity {
     }
 
     @Override
+    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+        if (world.isClient) {
+            return ActionResult.SUCCESS; // Del lado cliente, siempre indico éxito para que se muestre la animación de la mano.
+        }
+
+        BlockEntity be = world.getBlockEntity(pos);
+        if (be instanceof NucleoBlockEntity nucleoEntity) {
+            // Compruebo si el núcleo está en cooldown.
+            if (nucleoEntity.isOnCooldown()) {
+                player.sendMessage(Text.literal("El núcleo está en enfriamiento. Espera " + nucleoEntity.getCooldownSeconds() + " segundos.").formatted(Formatting.RED), true);
+                return ActionResult.CONSUME;
+            }
+            // Compruebo si otro jugador ya está interactuando.
+            if (nucleoEntity.isGameActive() && !nucleoEntity.isPlayerInteracting(player)) {
+                player.sendMessage(Text.literal("Alguien más ya está desactivando el núcleo.").formatted(Formatting.YELLOW), true);
+                return ActionResult.CONSUME;
+            }
+
+            // Si todo está en orden, abro la pantalla.
+            player.openHandledScreen((NamedScreenHandlerFactory) be);
+            return ActionResult.CONSUME;
+        }
+        return ActionResult.PASS;
+    }
+
+
+    // El resto de la clase permanece igual...
+    @Override
     public @Nullable BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new NucleoBlockEntity(pos, state);
     }
@@ -30,19 +65,13 @@ public class Nucleo extends BlockWithEntity {
         return BlockRenderType.MODEL;
     }
 
-    // Le indico a Minecraft que este BlockEntity tiene una lógica que debe ejecutarse.
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        // La lógica de spawn solo debe correr en el servidor para evitar problemas.
         if (world.isClient()) {
             return null;
         }
-
-        // Devuelvo una referencia a mi método tick, asegurándome de que los tipos coincidan.
-        // El '::' es una referencia a un método, una forma moderna y eficiente en Java
-        // de apuntar a una función sin tener que crear una clase anónima.
-        return checkType(type, ModBlockEntities.NUCLEO_BLOCK_ENTITY, NucleoBlockEntity::tick);
+        return checkType(type, ModBlockEntities.NUCLEO_BLOCK_ENTITY, (world1, pos, state1, be) -> NucleoBlockEntity.tick(world1, pos, state1, (NucleoBlockEntity) be));
     }
 
     @Override
