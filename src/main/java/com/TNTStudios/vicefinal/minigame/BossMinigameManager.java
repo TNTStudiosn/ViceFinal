@@ -188,7 +188,7 @@ public class BossMinigameManager {
             activeServer.getPlayerManager().broadcast(Text.literal("¡Desafío superado! El jefe ha sido debilitado.").formatted(Formatting.GREEN, Formatting.BOLD), false);
             applyDamageToBoss(activeServer, 250.0f); // Le bajamos 250 de vida.
         } else {
-            activeServer.getPlayerManager().broadcast(Text.literal("¡El desafío ha fracasado! No se coordinaron a tiempo.").formatted(Formatting.RED, Formatting.BOLD), false);
+            activeServer.getPlayerManager().broadcast(Text.literal("¡El desafío ha fracasado! No se coordinaron a tiempo. se necesitan almenos el 70% de ViceCraft apruebe").formatted(Formatting.RED, Formatting.BOLD), false);
         }
 
         // Cierro las pantallas de los jugadores que no terminaron a tiempo.
