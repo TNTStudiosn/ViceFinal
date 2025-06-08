@@ -6,17 +6,25 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
+import com.TNTStudios.vicefinal.screen.BossChallengeScreenHandler;
+import net.minecraft.resource.featuretoggle.FeatureFlags;
 
 public class ModScreenHandlers {
 
-    // Defino el tipo de ScreenHandler para el núcleo.
-    // Como mi ScreenHandler necesita recibir datos extra en el cliente (la posición del BlockEntity),
-    // utilizo ExtendedScreenHandlerType de Fabric API. Este espera un constructor que acepte un PacketByteBuf.
+
     public static final ScreenHandlerType<NucleoScreenHandler> NUCLEO_SCREEN_HANDLER =
-            new ExtendedScreenHandlerType<>(NucleoScreenHandler::new); // <--- [MODIFICAR] Usar ExtendedScreenHandlerType.
+            new ExtendedScreenHandlerType<>(NucleoScreenHandler::new);
+
+    // AÑADO MI NUEVO SCREEN HANDLER
+    // No necesita ser 'Extended' porque no le paso datos extra al abrirlo.
+    // El estado se gestiona después con PropertyDelegate.
+    public static final ScreenHandlerType<BossChallengeScreenHandler> BOSS_CHALLENGE_SCREEN_HANDLER =
+            new ScreenHandlerType<>(BossChallengeScreenHandler::new, FeatureFlags.VANILLA_FEATURES);
+
 
     public static void register() {
-        // El registro se mantiene igual, solo que ahora el objeto que registramos es del tipo correcto.
         Registry.register(Registries.SCREEN_HANDLER, new Identifier("vicefinal", "nucleo"), NUCLEO_SCREEN_HANDLER);
+        // LO REGISTRO CON SU IDENTIFICADOR
+        Registry.register(Registries.SCREEN_HANDLER, new Identifier("vicefinal", "boss_challenge"), BOSS_CHALLENGE_SCREEN_HANDLER);
     }
 }

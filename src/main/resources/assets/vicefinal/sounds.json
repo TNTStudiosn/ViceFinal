@@ -1,0 +1,32 @@
+{
+  "inicio": {
+    "category": "voice",
+    "sounds": [
+      "sounds/inicio"
+    ]
+  },
+  "random1": {
+    "category": "voice",
+    "sounds": [
+      "sounds/random1"
+    ]
+  },
+  "random2": {
+    "category": "voice",
+    "sounds": [
+      "sounds/random2"
+    ]
+  },
+  "random3": {
+    "category": "voice",
+    "sounds": [
+      "sounds/random3"
+    ]
+  },
+  "final": {
+    "category": "voice",
+    "sounds": [
+      "sounds/final"
+    ]
+  }
+}

@@ -17,7 +17,7 @@ public class SrTiempoController {
     // de escritura y para tener un único lugar donde gestionarlas.
 
     // Animaciones en Bucle
-    public static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.srtiempo.idle");
+    public static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.srtiempo.channel");
     public static final RawAnimation WALK = RawAnimation.begin().thenLoop("animation.srtiempo.walk");
     public static final RawAnimation CHANNEL = RawAnimation.begin().thenLoop("animation.srtiempo.channel");
     public static final RawAnimation STATUE = RawAnimation.begin().thenLoop("animation.srtiempo.statue");
