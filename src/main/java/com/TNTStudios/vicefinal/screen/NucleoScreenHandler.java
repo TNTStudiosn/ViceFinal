@@ -4,6 +4,7 @@ import com.TNTStudios.vicefinal.blocks.NucleoBlockEntity;
 import com.TNTStudios.vicefinal.registry.ModScreenHandlers;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerContext;
@@ -12,24 +13,25 @@ public class NucleoScreenHandler extends ScreenHandler {
     private final NucleoBlockEntity blockEntity;
     private final ScreenHandlerContext context;
 
-    // Constructor para el servidor, que obtiene el BlockEntity del mundo.
+    // Constructor para el cliente, que obtiene el BlockEntity del mundo a través del buffer.
     public NucleoScreenHandler(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
         this(syncId, playerInventory, (NucleoBlockEntity) playerInventory.player.getWorld().getBlockEntity(buf.readBlockPos()));
     }
 
-    // Constructor principal que inicializa el ScreenHandler.
+    // Constructor principal para el servidor.
     public NucleoScreenHandler(int syncId, PlayerInventory playerInventory, NucleoBlockEntity blockEntity) {
         super(ModScreenHandlers.NUCLEO_SCREEN_HANDLER, syncId);
         this.blockEntity = blockEntity;
         this.context = ScreenHandlerContext.create(blockEntity.getWorld(), blockEntity.getPos());
     }
 
-    // Este método se dispara cuando el cliente envía un "click". Lo usaré para procesar la entrada del minijuego.
     @Override
     public boolean onButtonClick(PlayerEntity player, int id) {
-        // El 'id' será el número que el jugador ha presionado (0-9).
         if (id >= 0 && id <= 9) {
-            blockEntity.handlePlayerInput(id);
+            // Solo procesamos el input si el juego está activo.
+            if(this.blockEntity.getGameState() == NucleoBlockEntity.GameState.ACTIVE) {
+                blockEntity.handlePlayerInput(id);
+            }
             return true;
         }
         return super.onButtonClick(player, id);
@@ -37,21 +39,26 @@ public class NucleoScreenHandler extends ScreenHandler {
 
     @Override
     public boolean canUse(PlayerEntity player) {
-        // El jugador puede usarlo si está cerca y es el jugador que inició la interacción.
+        // El jugador puede usarlo mientras sea el que está interactuando.
+        // La comprobación de distancia se hace en el tick del BlockEntity.
         return blockEntity.isPlayerInteracting(player);
     }
 
-    // Cuando el jugador cierra la GUI, se lo comunico al BlockEntity para que resetee el estado.
     @Override
     public void onClosed(PlayerEntity player) {
         super.onClosed(player);
-        blockEntity.stopMinigame();
+        // Cuando el jugador cierra la GUI (o es forzado a cerrarla),
+        // le comunicamos al BlockEntity que detenga el minijuego.
+        // El BlockEntity se encargará de poner el estado en IDLE o COOLDOWN.
+        // La forma correcta de comprobar si estamos en el servidor es `!world.isClient`.
+        if (!player.getWorld().isClient) {
+            blockEntity.stopMinigame();
+        }
     }
 
-    // Simplifico el código al no tener que mover items.
     @Override
-    public net.minecraft.item.ItemStack quickMove(PlayerEntity player, int slot) {
-        return net.minecraft.item.ItemStack.EMPTY;
+    public ItemStack quickMove(PlayerEntity player, int slot) {
+        return ItemStack.EMPTY;
     }
 
     public NucleoBlockEntity getBlockEntity() {
