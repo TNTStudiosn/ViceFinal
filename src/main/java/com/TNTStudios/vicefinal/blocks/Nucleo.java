@@ -1,21 +1,27 @@
 package com.TNTStudios.vicefinal.blocks;
 
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
+import com.TNTStudios.vicefinal.registry.ModBlockEntities;
+import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.Stream;
 
-public class Nucleo extends Block {
+public class Nucleo extends BlockWithEntity {
 
     public Nucleo(AbstractBlock.Settings settings) {
         super(settings);
     }
+
+    @Override
+    public @Nullable BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+        return new NucleoBlockEntity(pos, state);
+    }
+
 
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView view, BlockPos pos, ShapeContext context) {
@@ -38,5 +44,5 @@ public class Nucleo extends Block {
             Block.createCuboidShape(6, 4.5, 6, 10, 5, 10),
             // Cubo 7
             Block.createCuboidShape(6, 11, 6, 10, 11.5, 10)
-    ).reduce((v1, v2) -> VoxelShapes.union(v1, v2)).get();
+    ).reduce(VoxelShapes::union).get();
 }
