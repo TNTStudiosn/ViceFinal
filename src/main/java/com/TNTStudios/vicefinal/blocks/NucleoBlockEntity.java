@@ -73,9 +73,9 @@ public class NucleoBlockEntity extends BlockEntity implements ExtendedScreenHand
     public int numberTimer = 0; // Timer para el número actual, en ticks (20 ticks = 1 segundo)
 
     // --- Parámetros de la mecánica ---
-    private static final int REQUIRED_PROGRESS = 15;
-    private static final int INITIAL_LIVES = 3;
-    private static final int COUNTDOWN_SECONDS = 3;
+    private static final int REQUIRED_PROGRESS = 20;
+    private static final int INITIAL_LIVES = 2;
+    private static final int COUNTDOWN_SECONDS = 10;
     private static final int SPAWN_RADIUS = 20;
     private static final int MIN_SPAWN_RADIUS = 8;
     private static final int CORE_DEFENSE_RADIUS = 30;

@@ -31,6 +31,11 @@ public class NucleoScreen extends HandledScreen<NucleoScreenHandler> {
         titleX = (backgroundWidth - textRenderer.getWidth(title)) / 2;
     }
 
+    @Override
+    protected void drawForeground(DrawContext context, int mouseX, int mouseY) {
+        // No dibujamos nada, evitamos que aparezca "Inventario"
+    }
+
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
@@ -87,7 +92,10 @@ public class NucleoScreen extends HandledScreen<NucleoScreenHandler> {
 
         String countdownText = String.valueOf(secondsLeft);
         MutableText infoText = Text.literal("¡Prepárate!").formatted(Formatting.YELLOW);
-        context.drawCenteredTextWithShadow(textRenderer, infoText, centerX, centerY - 20, 0xFFFFFF);
+        MutableText instructionText = Text.literal("Pulsa el número que aparezca en menos de 1s").formatted(Formatting.WHITE);
+
+        context.drawCenteredTextWithShadow(textRenderer, infoText, centerX, centerY - 35, 0xFFFFFF);
+        context.drawCenteredTextWithShadow(textRenderer, instructionText, centerX, centerY - 20, 0xFFFFFF);
 
         context.getMatrices().push();
         context.getMatrices().scale(5.0f, 5.0f, 5.0f);
@@ -97,55 +105,58 @@ public class NucleoScreen extends HandledScreen<NucleoScreenHandler> {
 
 
     private void drawActiveGame(DrawContext context, NucleoBlockEntity be, int x, int y) {
- if (be.currentNumber != -1) {
-String numberStr = String.valueOf(be.currentNumber);
-context.getMatrices().push();
-context.getMatrices().scale(6.0f, 6.0f, 6.0f);
-context.drawCenteredTextWithShadow(textRenderer, Text.literal(numberStr).formatted(Formatting.YELLOW, Formatting.BOLD), (int)((this.width / 2) / 6f), (int)((y + 60) / 6f), 0xFFFFFF);
-context.getMatrices().pop();
-}
+        if (be.currentNumber != -1) {
+            String numberStr = String.valueOf(be.currentNumber);
+            context.getMatrices().push();
+            context.getMatrices().scale(6.0f, 6.0f, 6.0f);
+            context.drawCenteredTextWithShadow(textRenderer, Text.literal(numberStr).formatted(Formatting.YELLOW, Formatting.BOLD), (int)((this.width / 2) / 6f), (int)((y + 60) / 6f), 0xFFFFFF);
+            context.getMatrices().pop();
+        }
 
-int bottomY = y + this.backgroundHeight - 30;
-MutableText livesText = Text.literal("Vidas: ").formatted(Formatting.WHITE);
- livesText.append(Text.literal(String.valueOf(be.lives)).formatted(be.lives > 1 ? Formatting.GREEN : Formatting.RED, Formatting.BOLD));
- context.drawTextWithShadow(textRenderer, livesText, x + 15, bottomY, 0xFFFFFF);
+        int bottomY = y + this.backgroundHeight - 30;
+        MutableText livesText = Text.literal("Vidas: ").formatted(Formatting.WHITE);
+        livesText.append(Text.literal(String.valueOf(be.lives)).formatted(be.lives > 1 ? Formatting.GREEN : Formatting.RED, Formatting.BOLD));
+        context.drawTextWithShadow(textRenderer, livesText, x + 15, bottomY, 0xFFFFFF);
 
- MutableText progressText = Text.literal("Progreso: ").formatted(Formatting.WHITE);
-progressText.append(Text.literal(be.progress + " / 15").formatted(Formatting.GOLD, Formatting.BOLD));
-context.drawTextWithShadow(textRenderer, progressText, x + backgroundWidth - textRenderer.getWidth(progressText) - 15, bottomY, 0xFFFFFF);
-}
+        MutableText progressText = Text.literal("Progreso: ").formatted(Formatting.WHITE);
+        progressText.append(Text.literal(be.progress + " / 15").formatted(Formatting.GOLD, Formatting.BOLD));
+        context.drawTextWithShadow(textRenderer, progressText, x + backgroundWidth - textRenderer.getWidth(progressText) - 15, bottomY, 0xFFFFFF);
+    }
 
- private void drawFailureScreen(DrawContext context, int centerX, int centerY) {
-MutableText failText = Text.literal("¡FALLASTE!").formatted(Formatting.RED, Formatting.BOLD);
- context.getMatrices().push();
- context.getMatrices().scale(2.0f, 2.0f, 2.0f);
-context.drawCenteredTextWithShadow(textRenderer, failText, (int)(centerX / 2f), (int)(centerY / 2f), 0xFFFFFF);
- context.getMatrices().pop();
+    private void drawFailureScreen(DrawContext context, int centerX, int centerY) {
+        MutableText failText = Text.literal("¡FALLASTE!").formatted(Formatting.RED, Formatting.BOLD);
+        context.getMatrices().push();
+        context.getMatrices().scale(2.0f, 2.0f, 2.0f);
+        context.drawCenteredTextWithShadow(textRenderer, failText, (int)(centerX / 2f), (int)(centerY / 2f), 0xFFFFFF);
+        context.getMatrices().pop();
 
-MutableText cooldownText = Text.literal("El núcleo entra en enfriamiento.").formatted(Formatting.GRAY);
-context.drawCenteredTextWithShadow(textRenderer, cooldownText, centerX, centerY + 30, 0xFFFFFF);
- }
+        MutableText cooldownText = Text.literal("El núcleo entra en enfriamiento.").formatted(Formatting.GRAY);
+        context.drawCenteredTextWithShadow(textRenderer, cooldownText, centerX, centerY + 30, 0xFFFFFF);
+    }
 
 
+    /**
+     * [CORREGIDO] Se reestructura el método para priorizar la lógica del minijuego.
+     * Esto asegura que las teclas numéricas sean capturadas por nuestra GUI
+     * antes de que cualquier otra parte del juego pueda interceptarlas.
+     */
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (super.keyPressed(keyCode, scanCode, modifiers)) {
-            return true;
+        // Mi lógica primero. Si la tecla es un número y el juego está activo,
+        // la proceso y detengo la propagación del evento devolviendo 'true'.
+        if (this.cachedGameState == NucleoBlockEntity.GameState.ACTIVE) {
+            final int number = this.getNumberFromKeyCode(keyCode);
+            if (number != -1) {
+                // Envío el evento al servidor a través del ScreenHandler.
+                this.client.interactionManager.clickButton(this.handler.syncId, number);
+                return true; // ¡Importante! Indico que ya manejé la tecla.
+            }
         }
 
-        // Uso el estado local sincronizado, no el del BE directamente
-        if (this.cachedGameState != NucleoBlockEntity.GameState.ACTIVE) {
-            return false;
-        }
-
-        final int number = this.getNumberFromKeyCode(keyCode);
-
-        if (number != -1) {
-            this.client.interactionManager.clickButton(this.handler.syncId, number);
-            return true;
-        }
-
-        return false;
+        // Si mi lógica no manejó la tecla (porque no era un número o el juego no estaba activo),
+        // dejo que la clase padre maneje el evento. Esto es crucial para que la tecla de
+        // inventario (por defecto 'E') siga cerrando la GUI.
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     /**
