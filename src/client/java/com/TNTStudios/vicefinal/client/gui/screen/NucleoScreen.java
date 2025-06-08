@@ -17,9 +17,7 @@ import org.lwjgl.glfw.GLFW;
 
 public class NucleoScreen extends HandledScreen<NucleoScreenHandler> {
 
-    // --- [ELIMINADO] Ya no necesitamos variables de estado locales para el timer ---
-    // private NucleoBlockEntity.GameState lastKnownState;
-    // private int clientTicks;
+    private NucleoBlockEntity.GameState cachedGameState = NucleoBlockEntity.GameState.IDLE;
 
     public NucleoScreen(NucleoScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, Text.literal(""));
@@ -33,11 +31,15 @@ public class NucleoScreen extends HandledScreen<NucleoScreenHandler> {
         titleX = (backgroundWidth - textRenderer.getWidth(title)) / 2;
     }
 
+
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        // La lógica de tick del cliente se elimina. Ahora todo depende del servidor.
         this.renderBackground(context);
         super.render(context, mouseX, mouseY, delta);
+
+        // Actualizo el estado local que usaré en keyPressed()
+        this.cachedGameState = this.handler.getBlockEntity().getGameState();
+
         drawUI(context);
         drawMouseoverTooltip(context, mouseX, mouseY);
     }
@@ -93,8 +95,6 @@ public class NucleoScreen extends HandledScreen<NucleoScreenHandler> {
         context.getMatrices().pop();
     }
 
-    // El resto de la clase (drawActiveGame, drawFailureScreen, keyPressed, etc.) sigue aquí...
-    // ... (El código de `drawActiveGame` y `drawFailureScreen` no necesita cambios)
 
     private void drawActiveGame(DrawContext context, NucleoBlockEntity be, int x, int y) {
  if (be.currentNumber != -1) {
@@ -126,37 +126,25 @@ MutableText cooldownText = Text.literal("El núcleo entra en enfriamiento.").for
 context.drawCenteredTextWithShadow(textRenderer, cooldownText, centerX, centerY + 30, 0xFFFFFF);
  }
 
+
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        // Primero, dejo que la clase padre maneje sus propios eventos de teclado,
-        // como por ejemplo, cerrar la GUI con la tecla ESC.
         if (super.keyPressed(keyCode, scanCode, modifiers)) {
             return true;
         }
 
-        // Solo me interesa procesar teclas si la entidad del bloque está en el estado de juego 'ACTIVE'.
-        // Esto previene interacciones no deseadas cuando el juego no ha comenzado o ya ha terminado.
-        if (this.handler.getBlockEntity().getGameState() != NucleoBlockEntity.GameState.ACTIVE) {
+        // Uso el estado local sincronizado, no el del BE directamente
+        if (this.cachedGameState != NucleoBlockEntity.GameState.ACTIVE) {
             return false;
         }
 
-        // Intento obtener el valor numérico de la tecla presionada.
         final int number = this.getNumberFromKeyCode(keyCode);
 
-        // Si la tecla corresponde a un número válido (0-9), procedo a enviar la acción.
         if (number != -1) {
-            // Utilizo el interactionManager del cliente para notificar al servidor que un botón ha sido presionado.
-            // El 'syncId' asegura que la acción se aplique al contenedor de pantalla correcto en el servidor,
-            // y 'number' actúa como el identificador del botón que he presionado.
             this.client.interactionManager.clickButton(this.handler.syncId, number);
-
-            // Devuelvo 'true' para indicar que he manejado este evento de tecla.
-            // Esto detiene la propagación del evento a otros manejadores.
             return true;
         }
 
-        // Si la tecla presionada no es un número, devuelvo 'false' para permitir que otros
-        // componentes del juego puedan procesar el evento si es necesario.
         return false;
     }
 

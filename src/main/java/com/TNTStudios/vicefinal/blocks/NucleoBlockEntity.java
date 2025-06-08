@@ -67,9 +67,10 @@ public class NucleoBlockEntity extends BlockEntity implements ExtendedScreenHand
     @Nullable
     private UUID interactingPlayer = null;
     private long cooldownEndTime = 0;
-    public int lives = 3;
+    public int lives = 2;
     public int currentNumber = -1;
     public int progress = 0;
+    public int numberTimer = 0; // Timer para el número actual, en ticks (20 ticks = 1 segundo)
 
     // --- Parámetros de la mecánica ---
     private static final int REQUIRED_PROGRESS = 15;
@@ -132,38 +133,69 @@ public class NucleoBlockEntity extends BlockEntity implements ExtendedScreenHand
     }
 
     private void handleCountdownState(World world) {
+        // Decremento el timer del countdown (20 ticks por segundo).
         gameTimer--;
+
+        // Siempre sincronizo el estado para que el cliente actualice el número visible.
+        markDirtyAndSync();
+
+        // Cada vez que pasamos a un nuevo segundo (múltiplo de 20 ticks), reproduzco un sonido de tick.
         if (gameTimer % 20 == 0 && gameTimer > 0) {
-            // Reproduzco un sonido de tick en cada segundo de la cuenta atrás.
-            // Uso coordenadas x,y,z porque es la sobrecarga correcta para el servidor.
             world.playSound(
                     null,
                     pos.getX() + 0.5,
                     pos.getY() + 0.5,
                     pos.getZ() + 0.5,
-                    SoundEvents.BLOCK_NOTE_BLOCK_HAT.value(), // <- aquí el cambio
+                    SoundEvents.BLOCK_NOTE_BLOCK_HAT.value(),
                     SoundCategory.BLOCKS,
                     0.5f,
                     1.2f
             );
-
         }
 
+        // Cuando la cuenta regresiva llega a 0, inicio el minijuego.
         if (gameTimer <= 0) {
-            // La cuenta regresiva ha terminado, ¡que empiece el juego!
             this.gameState = GameState.ACTIVE;
-            world.playSound(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.BLOCKS, 0.8f, 1.5f);
-            generateNextNumber();
-            markDirtyAndSync();
+            world.playSound(
+                    null,
+                    pos.getX() + 0.5,
+                    pos.getY() + 0.5,
+                    pos.getZ() + 0.5,
+                    SoundEvents.ENTITY_PLAYER_LEVELUP,
+                    SoundCategory.BLOCKS,
+                    0.8f,
+                    1.5f
+            );
+            generateNextNumber(); // Genero el primer número del minijuego.
+            markDirtyAndSync();   // Sincronizo de nuevo para que el cliente vea el cambio de estado y el número.
         }
     }
+
+
 
     private void handleActiveState(World world, BlockPos pos) {
         PlayerEntity player = world.getPlayerByUuid(this.interactingPlayer);
         if (player == null || player.isDead() || player.getPos().distanceTo(pos.toCenterPos()) > 8.0) {
             failMinigame();
+            return;
+        }
+
+        // Decremento el timer del número actual
+        numberTimer--;
+        if (numberTimer <= 0) {
+            // El jugador no respondió a tiempo → pierde una vida
+            this.lives--;
+            world.playSound(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, SoundEvents.ENTITY_VILLAGER_NO, SoundCategory.BLOCKS, 1.0f, 0.8f);
+
+            if (this.lives <= 0) {
+                failMinigame();
+            } else {
+                generateNextNumber();
+            }
+            markDirtyAndSync();
         }
     }
+
 
     // --- Lógica del Minijuego ---
 
@@ -286,7 +318,9 @@ public class NucleoBlockEntity extends BlockEntity implements ExtendedScreenHand
 
     private void generateNextNumber() {
         this.currentNumber = random.nextInt(10); // Número aleatorio del 0 al 9.
+        this.numberTimer = 20; // tiempo para poner tecla
     }
+
 
     // --- Getters para la GUI y el Bloque ---
     public GameState getGameState() {
