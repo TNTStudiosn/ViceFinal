@@ -1,5 +1,7 @@
+// RUTA: src/main/java/com/TNTStudios/vicefinal/entity/SrTiempoEntity.java
 package com.TNTStudios.vicefinal.entity;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.goal.LookAtEntityGoal;
@@ -17,34 +19,45 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SrTiempoEntity extends HostileEntity implements GeoEntity {
 
     private final AnimatableInstanceCache cache = new SingletonAnimatableInstanceCache(this);
-    // Hago el controlador final, ya que siempre estará ahí.
     private final SrTiempoController controller = new SrTiempoController();
-    // La BossBar también es final.
+
+    // [CORREGIDO] La BossBar solo debe existir en el servidor.
+    // La declaro como @Nullable para indicar que puede ser nula (en el lado del cliente).
+    @Nullable
     private final ServerBossBar bossBar;
 
     public SrTiempoEntity(EntityType<? extends HostileEntity> type, World world) {
         super(type, world);
-        this.bossBar = new ServerBossBar(this.getDisplayName(), BossBar.Color.PURPLE, BossBar.Style.PROGRESS);
-        this.setHealth(this.getMaxHealth());
 
-        // Lo hago invulnerable desde el principio. Es la forma más robusta.
+        // [CORREGIDO] Solo instancio la ServerBossBar en el lado del servidor.
+        if (!world.isClient()) {
+            this.bossBar = new ServerBossBar(this.getDisplayName(), BossBar.Color.PURPLE, BossBar.Style.PROGRESS);
+        } else {
+            this.bossBar = null;
+        }
+
+        this.setHealth(this.getMaxHealth());
         this.setInvulnerable(true);
-        // Me aseguro de que la entidad no sea afectada por la gravedad si está en modo estatua, por ejemplo.
-        this.setNoGravity(false); // Inicialmente tiene gravedad.
+        this.setNoGravity(false);
     }
+
+    // El resto de la clase permanece mayormente igual, pero con comprobaciones de nulidad.
 
     public SrTiempoController getController() {
         return controller;
@@ -54,21 +67,17 @@ public class SrTiempoEntity extends HostileEntity implements GeoEntity {
 
     @Override
     public boolean isPersistent() {
-        // Soy una entidad de jefe, no debo desaparecer bajo ninguna circunstancia.
-        // Esto previene el despawn por mob-cap y asegura que se guarde con el chunk.
         return true;
     }
 
     @Override
     public boolean canImmediatelyDespawn(double distanceSquared) {
-        // Doble confirmación de que no debo desaparecer. isPersistent() es más fuerte.
         return false;
     }
 
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
-        // Guardo el estado del controlador para que sobreviva a reinicios.
         nbt.putBoolean("isWalking", controller.isWalking());
         nbt.putBoolean("isAggressive", controller.isAggressive());
     }
@@ -76,19 +85,14 @@ public class SrTiempoEntity extends HostileEntity implements GeoEntity {
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
         super.readCustomDataFromNbt(nbt);
-        // Leo el estado del controlador al cargar la entidad.
         controller.setWalking(nbt.getBoolean("isWalking"));
         controller.setAggressive(nbt.getBoolean("isAggressive"));
 
-        // Sincronizo la animación correcta después de cargar el estado.
-        // Por ejemplo, si estaba caminando, que siga caminando.
         if (controller.isWalking()) {
             controller.playWalk();
         } else if (controller.isAggressive()) {
             controller.playChannel();
         } else {
-            // Podrías tener un estado 'estatua' persistente también.
-            // Por ahora, si no es ninguno, lo dejo en idle.
             controller.playIdle();
         }
     }
@@ -97,19 +101,26 @@ public class SrTiempoEntity extends HostileEntity implements GeoEntity {
 
     @Override
     public boolean isPushable() {
-        // Soy una fuerza inamovible.
         return false;
     }
 
     @Override
     public boolean isPushedByFluids() {
-        // Los fluidos no me afectan.
         return false;
     }
 
     @Override
     public void onPlayerCollision(PlayerEntity player) {
-        // No me muevo si un jugador choca conmigo. Soy imponente.
+        // No hago nada, soy inamovible.
+    }
+
+    @Override
+    public boolean tryAttack(Entity target) {
+        boolean success = super.tryAttack(target);
+        if (success) {
+            this.controller.playSlap();
+        }
+        return success;
     }
 
     public static DefaultAttributeContainer.Builder createAttributes() {
@@ -126,31 +137,24 @@ public class SrTiempoEntity extends HostileEntity implements GeoEntity {
         this.goalSelector.add(2, new MeleeAttackGoal(this, 1.0D, false) {
             @Override
             public boolean canStart() {
-                // Solo puedo empezar a atacar si el controller me da permiso.
                 return controller.isAggressive() && super.canStart();
             }
         });
-
         this.goalSelector.add(7, new WanderAroundFarGoal(this, 1.0D) {
             @Override
             public boolean canStart() {
-                // Solo puedo empezar a caminar si el controller me da permiso.
                 return controller.isWalking() && super.canStart();
             }
         });
-
         this.goalSelector.add(8, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F) {
             @Override
             public boolean canStart() {
-                // Miro a los jugadores si estoy en modo caminar o atacar.
                 return controller.canMove() && super.canStart();
             }
         });
-
         this.targetSelector.add(1, new ActiveTargetGoal<>(this, PlayerEntity.class, true) {
             @Override
             public boolean canStart() {
-                // Solo busco objetivos si mi controller me dice que sea agresivo.
                 return controller.isAggressive() && super.canStart();
             }
         });
@@ -160,32 +164,32 @@ public class SrTiempoEntity extends HostileEntity implements GeoEntity {
 
     @Override
     public boolean damage(DamageSource source, float amount) {
-        // Mi poder está más allá de tu comprensión. No puedes herirme.
         return false;
     }
 
     @Override
     public void setCustomName(Text name) {
         super.setCustomName(name);
-        this.bossBar.setName(this.getDisplayName());
+        // [CORREGIDO] Añado la comprobación para evitar una NullPointerException en el cliente.
+        if (this.bossBar != null) {
+            this.bossBar.setName(this.getDisplayName());
+        }
     }
 
     @Override
     public void tick() {
         super.tick();
-        if (!getWorld().isClient()) {
+        // [CORREGIDO] El bloque entero ya estaba protegido, pero ahora la existencia del bossBar también lo está.
+        if (!getWorld().isClient() && this.bossBar != null) {
             this.bossBar.setPercent(this.getHealth() / this.getMaxHealth());
 
-            // La gestión de la BossBar estaba bien, la mantengo.
-            // Uso getPlayers en lugar de getEntitiesByClass para ser más directo.
-            List<ServerPlayerEntity> playersInRange = ((ServerWorld)this.getWorld()).getPlayers(p -> p.squaredDistanceTo(this) < 4096); // 64*64 bloques
+            List<ServerPlayerEntity> playersInRange = ((ServerWorld)this.getWorld()).getPlayers(p -> p.squaredDistanceTo(this) < 4096);
+            List<ServerPlayerEntity> currentBossBarPlayers = new ArrayList<>(this.bossBar.getPlayers());
 
-            // Jugadores que se alejan.
-            this.bossBar.getPlayers().stream()
+            currentBossBarPlayers.stream()
                     .filter(player -> !playersInRange.contains(player))
                     .forEach(this.bossBar::removePlayer);
 
-            // Jugadores que se acercan.
             playersInRange.stream()
                     .filter(player -> !this.bossBar.getPlayers().contains(player))
                     .forEach(this.bossBar::addPlayer);
@@ -195,7 +199,7 @@ public class SrTiempoEntity extends HostileEntity implements GeoEntity {
     @Override
     public void onRemoved() {
         super.onRemoved();
-        // Me aseguro de que la barra se limpie correctamente.
+        // [CORREGIDO] Me aseguro de limpiar la BossBar solo si existe (lado servidor).
         if (this.bossBar != null) {
             this.bossBar.setVisible(false);
             this.bossBar.clearPlayers();
@@ -215,9 +219,9 @@ public class SrTiempoEntity extends HostileEntity implements GeoEntity {
     }
 
     private <E extends GeoEntity> PlayState predicate(AnimationState<E> state) {
-        // La lógica de animación depende del estado del controlador.
-        // Si el controlador tiene la animación correcta, esto funcionará a la perfección.
-        state.setAnimation(controller.getCurrentAnimation());
-        return PlayState.CONTINUE;
+        if (state.isMoving() && controller.isWalking()) {
+            return state.setAndContinue(RawAnimation.begin().thenLoop("animation.srtiempo.walk"));
+        }
+        return state.setAndContinue(controller.getCurrentAnimation());
     }
 }

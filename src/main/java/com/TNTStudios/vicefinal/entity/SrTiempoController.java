@@ -1,3 +1,4 @@
+// RUTA: src/main/java/com/TNTStudios/vicefinal/entity/SrTiempoController.java
 package com.TNTStudios.vicefinal.entity;
 
 import software.bernie.geckolib.core.animation.RawAnimation;
@@ -28,22 +29,52 @@ public class SrTiempoController {
         this.currentAnimation = RawAnimation.begin().thenLoop("animation.srtiempo.walk");
     }
 
+    /**
+     * [CORREGIDO] La animación de 'slap' ahora vuelve a un estado de loop de forma correcta.
+     */
     public void playSlap() {
-        this.currentAnimation = RawAnimation.begin().thenPlay("animation.srtiempo.slap");
+        // Determino el nombre de la siguiente animación en bucle.
+        String nextAnimationName = this.isAggressive
+                ? "animation.srtiempo.channel"
+                : "animation.srtiempo.idle";
+
+        // Primero reproduzco 'slap' una vez, y luego entro en bucle con la siguiente animación.
+        this.currentAnimation = RawAnimation.begin().thenPlay("animation.srtiempo.slap").thenLoop(nextAnimationName);
     }
 
+    /**
+     * [CORREGIDO] La animación 'turn_time' ahora vuelve a un estado de loop de forma correcta.
+     */
     public void playTurnTime() {
-        this.currentAnimation = RawAnimation.begin().thenPlay("animation.srtiempo.turn_time");
+        // Determino el nombre de la siguiente animación en bucle.
+        String nextAnimationName = this.isAggressive
+                ? "animation.srtiempo.channel"
+                : "animation.srtiempo.idle";
+
+        // Primero reproduzco 'turn_time' una vez, y luego entro en bucle con la siguiente animación.
+        this.currentAnimation = RawAnimation.begin().thenPlay("animation.srtiempo.turn_time").thenLoop(nextAnimationName);
     }
 
     public void playChannel() {
         this.currentAnimation = RawAnimation.begin().thenLoop("animation.srtiempo.channel");
     }
 
+    /**
+     * [CORREGIDO] La animación 'charge_up' ahora vuelve a un estado de loop de forma correcta.
+     */
     public void playChargeUp() {
-        this.currentAnimation = RawAnimation.begin().thenPlay("animation.srtiempo.charge_up");
+        // Determino el nombre de la siguiente animación en bucle.
+        String nextAnimationName = this.isAggressive
+                ? "animation.srtiempo.channel"
+                : "animation.srtiempo.idle";
+
+        // Primero reproduzco 'charge_up' una vez, y luego entro en bucle con la siguiente animación.
+        this.currentAnimation = RawAnimation.begin().thenPlay("animation.srtiempo.charge_up").thenLoop(nextAnimationName);
     }
 
+    /**
+     * [MEJORADO] La animación de muerte no loopea, se queda en el último frame.
+     */
     public void playDeath() {
         this.currentAnimation = RawAnimation.begin().thenPlay("animation.srtiempo.death");
     }
