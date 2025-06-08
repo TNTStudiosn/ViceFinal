@@ -4,6 +4,7 @@
   "package": "com.TNTStudios.vicefinal.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "MobEntityAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
