@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "vicefinal",
+  "version": "${version}",
+  "name": "ViceFinal",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/vicefinal/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "com.TNTStudios.vicefinal.client.VicefinalClient"
+    ],
+    "main": [
+      "com.TNTStudios.vicefinal.Vicefinal"
+    ]
+  },
+  "mixins": [
+    "vicefinal.mixins.json",
+    {
+      "config": "vicefinal.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
