@@ -22,6 +22,14 @@ public class Nucleo extends BlockWithEntity {
         return new NucleoBlockEntity(pos, state);
     }
 
+    // --- MI CORRECCIÓN ---
+    // Le indico a Minecraft que este bloque, aunque tenga un BlockEntity,
+    // debe renderizar su modelo a partir del archivo JSON.
+    // Sin esto, el bloque es invisible por defecto.
+    @Override
+    public BlockRenderType getRenderType(BlockState state) {
+        return BlockRenderType.MODEL;
+    }
 
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView view, BlockPos pos, ShapeContext context) {
