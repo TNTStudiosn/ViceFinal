@@ -9,11 +9,13 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 public class SrTiempoController {
 
     private RawAnimation currentAnimation;
-    private boolean canMove;
+    private boolean isWalking = false;
+    private boolean isAggressive = false;
 
     public SrTiempoController() {
-        this.currentAnimation = RawAnimation.begin().thenLoop("animation.srtiempo.idle");
-        this.canMove = false; // Inicialmente no puede moverse
+        // Por defecto, comienza en modo 'idle' (quieto), no 'statue'.
+        // Así, 'statue' se convierte en un estado que activamos a propósito.
+        this.playIdle();
     }
 
     // API pública:
@@ -54,11 +56,27 @@ public class SrTiempoController {
         return currentAnimation;
     }
 
+    // Este método ahora determina si la IA de movimiento (caminar o atacar) debe activarse.
     public boolean canMove() {
-        return canMove;
+        return this.isWalking || this.isAggressive;
     }
 
-    public void setCanMove(boolean canMove) {
-        this.canMove = canMove;
+    // Este método determina si la IA de ataque específico (MeleeAttackGoal) debe activarse.
+    public boolean isAggressive() {
+        return this.isAggressive;
+    }
+
+    // Este método determina si la IA de paseo (WanderAroundFarGoal) debe activarse.
+    public boolean isWalking() {
+        return this.isWalking;
+    }
+
+    // Setters para controlar el estado desde los comandos.
+    public void setWalking(boolean walking) {
+        this.isWalking = walking;
+    }
+
+    public void setAggressive(boolean aggressive) {
+        this.isAggressive = aggressive;
     }
 }
