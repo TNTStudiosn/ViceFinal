@@ -15,7 +15,6 @@ import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInst
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.AnimationState;
-import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 
 public class SrTiempoEntity extends HostileEntity implements GeoEntity {
@@ -23,9 +22,17 @@ public class SrTiempoEntity extends HostileEntity implements GeoEntity {
     // El caché para las animaciones de GeckoLib, todo en orden.
     private final AnimatableInstanceCache cache = new SingletonAnimatableInstanceCache(this);
 
+    // Nuevo controller para controlar la lógica del boss desde el mod.
+    private final SrTiempoController controller = new SrTiempoController();
+
     // El constructor ahora usa el tipo correcto, HostileEntity.
     public SrTiempoEntity(EntityType<? extends HostileEntity> type, World world) {
         super(type, world);
+    }
+
+    // Getter del controller para que el mod pueda accederlo.
+    public SrTiempoController getController() {
+        return controller;
     }
 
     // Para los atributos, ahora parto de la base de un mob hostil.
@@ -43,13 +50,30 @@ public class SrTiempoEntity extends HostileEntity implements GeoEntity {
     // Aquí registraré la IA básica de mi entidad.
     @Override
     protected void initGoals() {
-        // Le doy un comportamiento de ataque cuerpo a cuerpo.
-        this.goalSelector.add(0, new MeleeAttackGoal(this, 1.0D, false));
-        // Haré que deambule por el mundo cuando esté inactivo.
-        this.goalSelector.add(7, new WanderAroundFarGoal(this, 1.0D));
-        // Y que me mire si estoy cerca.
-        this.goalSelector.add(8, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
+        // Siempre registro los goals, pero su activación la controla el controller
+        this.goalSelector.add(0, new MeleeAttackGoal(this, 1.0D, false) {
+            @Override
+            public boolean canStart() {
+                return controller != null && controller.canMove() && super.canStart();
+            }
+        });
+
+        this.goalSelector.add(7, new WanderAroundFarGoal(this, 1.0D) {
+            @Override
+            public boolean canStart() {
+                return controller != null && controller.canMove() && super.canStart();
+            }
+        });
+
+        this.goalSelector.add(8, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F) {
+            @Override
+            public boolean canStart() {
+                return controller != null && controller.canMove() && super.canStart();
+            }
+        });
     }
+
+
 
     // --- Lógica de Animación de GeckoLib ---
 
@@ -65,16 +89,9 @@ public class SrTiempoEntity extends HostileEntity implements GeoEntity {
     }
 
     // Este predicado controla qué animación se reproduce.
-    // Por ahora, solo la de idle.
     private <E extends GeoEntity> PlayState predicate(AnimationState<E> state) {
-        // Si la entidad se está moviendo, podría reproducir una animación de caminar.
-        if (state.isMoving()) {
-            // state.setAnimation(RawAnimation.begin().thenLoop("animation.srtiempo.walk"));
-            // return PlayState.CONTINUE;
-        }
-
-        // Si no, reproduzco la animación de estar quieto (idle).
-        state.setAnimation(RawAnimation.begin().thenLoop("animation.srtiempo.idle"));
+        // Le digo a GeckoLib que reproduzca la animación que indica el controller.
+        state.setAnimation(controller.getCurrentAnimation());
         return PlayState.CONTINUE;
     }
 }
