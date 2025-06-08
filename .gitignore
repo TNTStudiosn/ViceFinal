@@ -1,3 +1,156 @@
 # Project exclude paths
 /.gradle/
 /build/
+/run/usercache.json
+/run/saves/Mundo nuevo/playerdata/0b0a3338-3321-32ee-8738-58aa00379d42.dat
+/run/saves/Mundo nuevo/advancements/0b0a3338-3321-32ee-8738-58aa00379d42.json
+/run/saves/Mundo nuevo/stats/0b0a3338-3321-32ee-8738-58aa00379d42.json
+/run/saves/Mundo nuevo/playerdata/2dc91382-bdf7-3364-b2ee-09532f57b948.dat
+/run/saves/Mundo nuevo/playerdata/2dc91382-bdf7-3364-b2ee-09532f57b948.dat_old
+/run/saves/Mundo nuevo/advancements/2dc91382-bdf7-3364-b2ee-09532f57b948.json
+/run/saves/Mundo nuevo/stats/2dc91382-bdf7-3364-b2ee-09532f57b948.json
+/run/saves/Mundo nuevo/playerdata/3e1fbeae-13f8-3fbb-9842-63bc739da918.dat
+/run/saves/Mundo nuevo/advancements/3e1fbeae-13f8-3fbb-9842-63bc739da918.json
+/run/saves/Mundo nuevo/stats/3e1fbeae-13f8-3fbb-9842-63bc739da918.json
+/run/saves/Mundo nuevo/playerdata/6b70ab1d-ea1f-3080-82f2-6a9952eea911.dat
+/run/saves/Mundo nuevo/advancements/6b70ab1d-ea1f-3080-82f2-6a9952eea911.json
+/run/saves/Mundo nuevo/stats/6b70ab1d-ea1f-3080-82f2-6a9952eea911.json
+/run/saves/Mundo nuevo/playerdata/7d05f0c7-0fbd-313e-b15f-14e4684ddd72.dat
+/run/saves/Mundo nuevo/playerdata/7d05f0c7-0fbd-313e-b15f-14e4684ddd72.dat_old
+/run/saves/Mundo nuevo/advancements/7d05f0c7-0fbd-313e-b15f-14e4684ddd72.json
+/run/saves/Mundo nuevo/stats/7d05f0c7-0fbd-313e-b15f-14e4684ddd72.json
+/run/saves/Mundo nuevo/playerdata/9c66b502-7304-3207-92e6-8d6afcf30d77.dat
+/run/saves/Mundo nuevo/advancements/9c66b502-7304-3207-92e6-8d6afcf30d77.json
+/run/saves/Mundo nuevo/stats/9c66b502-7304-3207-92e6-8d6afcf30d77.json
+/run/saves/Mundo nuevo/playerdata/9da9c19c-8c76-3722-b34c-263305f5c6ba.dat
+/run/saves/Mundo nuevo/advancements/9da9c19c-8c76-3722-b34c-263305f5c6ba.json
+/run/saves/Mundo nuevo/stats/9da9c19c-8c76-3722-b34c-263305f5c6ba.json
+/run/saves/Mundo nuevo/playerdata/19f51a77-b6fb-3469-a8b6-228ec5ce5961.dat
+/run/saves/Mundo nuevo/playerdata/19f51a77-b6fb-3469-a8b6-228ec5ce5961.dat_old
+/run/saves/Mundo nuevo/advancements/19f51a77-b6fb-3469-a8b6-228ec5ce5961.json
+/run/saves/Mundo nuevo/stats/19f51a77-b6fb-3469-a8b6-228ec5ce5961.json
+/run/saves/Mundo nuevo/playerdata/27fc360e-fa24-3dff-9bfe-79a065a3b88e.dat
+/run/saves/Mundo nuevo/playerdata/27fc360e-fa24-3dff-9bfe-79a065a3b88e.dat_old
+/run/saves/Mundo nuevo/advancements/27fc360e-fa24-3dff-9bfe-79a065a3b88e.json
+/run/saves/Mundo nuevo/stats/27fc360e-fa24-3dff-9bfe-79a065a3b88e.json
+/run/saves/Mundo nuevo/playerdata/84e9e4f6-df8d-3fc9-b2c7-0eb3b9531d39.dat
+/run/saves/Mundo nuevo/playerdata/84e9e4f6-df8d-3fc9-b2c7-0eb3b9531d39.dat_old
+/run/saves/Mundo nuevo/advancements/84e9e4f6-df8d-3fc9-b2c7-0eb3b9531d39.json
+/run/saves/Mundo nuevo/stats/84e9e4f6-df8d-3fc9-b2c7-0eb3b9531d39.json
+/run/saves/Mundo nuevo/playerdata/90ee7131-905c-3e5a-b4c0-60424db8bd36.dat
+/run/saves/Mundo nuevo/advancements/90ee7131-905c-3e5a-b4c0-60424db8bd36.json
+/run/saves/Mundo nuevo/stats/90ee7131-905c-3e5a-b4c0-60424db8bd36.json
+/run/saves/Mundo nuevo/playerdata/92bdd514-4796-3d7d-b2d4-a03fc9628bd4.dat
+/run/saves/Mundo nuevo/advancements/92bdd514-4796-3d7d-b2d4-a03fc9628bd4.json
+/run/saves/Mundo nuevo/stats/92bdd514-4796-3d7d-b2d4-a03fc9628bd4.json
+/run/saves/Mundo nuevo/playerdata/099dce46-0df6-30e5-b5f1-2cad5dad09ff.dat
+/run/saves/Mundo nuevo/advancements/099dce46-0df6-30e5-b5f1-2cad5dad09ff.json
+/run/saves/Mundo nuevo/stats/099dce46-0df6-30e5-b5f1-2cad5dad09ff.json
+/run/saves/Mundo nuevo/playerdata/168f5f60-1523-35b7-93b7-01b2c42226b4.dat
+/run/saves/Mundo nuevo/playerdata/168f5f60-1523-35b7-93b7-01b2c42226b4.dat_old
+/run/saves/Mundo nuevo/advancements/168f5f60-1523-35b7-93b7-01b2c42226b4.json
+/run/saves/Mundo nuevo/stats/168f5f60-1523-35b7-93b7-01b2c42226b4.json
+/run/logs/2025-06-07-1.log.gz
+/run/logs/2025-06-08-1.log.gz
+/run/logs/2025-06-08-2.log.gz
+/run/logs/2025-06-08-3.log.gz
+/run/logs/2025-06-08-4.log.gz
+/run/logs/2025-06-08-5.log.gz
+/run/logs/2025-06-08-6.log.gz
+/run/logs/2025-06-08-7.log.gz
+/run/screenshots/2025-06-08_01.20.41.png
+/run/saves/Mundo nuevo/playerdata/79588fdd-6216-324d-ac44-68b387fcfb5c.dat
+/run/saves/Mundo nuevo/playerdata/79588fdd-6216-324d-ac44-68b387fcfb5c.dat_old
+/run/saves/Mundo nuevo/advancements/79588fdd-6216-324d-ac44-68b387fcfb5c.json
+/run/saves/Mundo nuevo/stats/79588fdd-6216-324d-ac44-68b387fcfb5c.json
+/run/saves/Mundo nuevo/playerdata/a2d3cb04-2e77-32ea-a568-7872ba7e9c5c.dat
+/run/saves/Mundo nuevo/advancements/a2d3cb04-2e77-32ea-a568-7872ba7e9c5c.json
+/run/saves/Mundo nuevo/stats/a2d3cb04-2e77-32ea-a568-7872ba7e9c5c.json
+/run/saves/Mundo nuevo/playerdata/a0803941-42b2-30d8-878b-d5bba587b8ae.dat
+/run/saves/Mundo nuevo/playerdata/a0803941-42b2-30d8-878b-d5bba587b8ae.dat_old
+/run/saves/Mundo nuevo/advancements/a0803941-42b2-30d8-878b-d5bba587b8ae.json
+/run/saves/Mundo nuevo/stats/a0803941-42b2-30d8-878b-d5bba587b8ae.json
+/run/saves/Mundo nuevo/playerdata/cb84ed39-e436-34ce-8360-3a854fcf8ae6.dat
+/run/saves/Mundo nuevo/advancements/cb84ed39-e436-34ce-8360-3a854fcf8ae6.json
+/run/saves/Mundo nuevo/stats/cb84ed39-e436-34ce-8360-3a854fcf8ae6.json
+/run/saves/Mundo nuevo/playerdata/cc8f980e-8ea7-381a-8715-01149d418cfb.dat
+/run/saves/Mundo nuevo/playerdata/cc8f980e-8ea7-381a-8715-01149d418cfb.dat_old
+/run/saves/Mundo nuevo/advancements/cc8f980e-8ea7-381a-8715-01149d418cfb.json
+/run/saves/Mundo nuevo/stats/cc8f980e-8ea7-381a-8715-01149d418cfb.json
+/run/saves/Mundo nuevo/playerdata/ccd8a3d4-50c5-39f5-a01f-10958af9df66.dat
+/run/saves/Mundo nuevo/playerdata/ccd8a3d4-50c5-39f5-a01f-10958af9df66.dat_old
+/run/saves/Mundo nuevo/advancements/ccd8a3d4-50c5-39f5-a01f-10958af9df66.json
+/run/saves/Mundo nuevo/stats/ccd8a3d4-50c5-39f5-a01f-10958af9df66.json
+/run/saves/Mundo nuevo/playerdata/cfc92182-cce0-3b37-884c-2944311ee55d.dat
+/run/saves/Mundo nuevo/advancements/cfc92182-cce0-3b37-884c-2944311ee55d.json
+/run/saves/Mundo nuevo/stats/cfc92182-cce0-3b37-884c-2944311ee55d.json
+/.idea/compiler.xml
+/run/crash-reports/crash-2025-06-08_00.01.49-client.txt
+/run/crash-reports/crash-2025-06-08_00.03.15-client.txt
+/run/saves/Mundo nuevo/playerdata/d75ffc85-72b0-3b94-be32-d104d89a3a6a.dat
+/run/saves/Mundo nuevo/advancements/d75ffc85-72b0-3b94-be32-d104d89a3a6a.json
+/run/saves/Mundo nuevo/stats/d75ffc85-72b0-3b94-be32-d104d89a3a6a.json
+/run/saves/Mundo nuevo/playerdata/d944aee7-2684-33ce-b4ec-6dde00bdf73f.dat
+/run/saves/Mundo nuevo/playerdata/d944aee7-2684-33ce-b4ec-6dde00bdf73f.dat_old
+/run/saves/Mundo nuevo/advancements/d944aee7-2684-33ce-b4ec-6dde00bdf73f.json
+/run/saves/Mundo nuevo/stats/d944aee7-2684-33ce-b4ec-6dde00bdf73f.json
+/run/logs/debug.log
+/run/logs/debug-1.log.gz
+/run/logs/debug-2.log.gz
+/run/logs/debug-3.log.gz
+/run/logs/debug-4.log.gz
+/run/logs/debug-5.log.gz
+/run/saves/Mundo nuevo/playerdata/efe2ab2d-072a-337a-9d65-10da4f48c969.dat
+/run/saves/Mundo nuevo/advancements/efe2ab2d-072a-337a-9d65-10da4f48c969.json
+/run/saves/Mundo nuevo/stats/efe2ab2d-072a-337a-9d65-10da4f48c969.json
+/run/data/fabricDefaultResourcePacks.dat
+/run/saves/Mundo nuevo/playerdata/fc1768ff-17ae-39e8-bef2-f3e0d98306ba.dat
+/run/saves/Mundo nuevo/advancements/fc1768ff-17ae-39e8-bef2-f3e0d98306ba.json
+/run/saves/Mundo nuevo/stats/fc1768ff-17ae-39e8-bef2-f3e0d98306ba.json
+/run/saves/Mundo nuevo/playerdata/fd4dff36-f6aa-35f9-8e99-ec749e44651e.dat
+/run/saves/Mundo nuevo/advancements/fd4dff36-f6aa-35f9-8e99-ec749e44651e.json
+/run/saves/Mundo nuevo/stats/fd4dff36-f6aa-35f9-8e99-ec749e44651e.json
+/run/config/forgeconfigapiport.toml
+/run/.fabric/tmp/forgeconfigapiport7104954532622076107.jar
+/run/.fabric/processedMods/forgeconfigapiport-8.0.0-55adcfe5e3352ced.jar
+/run/saves/Mundo nuevo/icon.png
+/run/config/immersivemessages-client.toml
+/run/config/fabric/indigo-renderer.properties
+/run/logs/latest.log
+/run/saves/Mundo nuevo/level.dat
+/run/saves/Mundo nuevo/level.dat_old
+/.idea/modules.xml
+/src/main/resources/assets/vicefinal/models/block/nucleo.json
+/src/main/resources/assets/vicefinal/models/item/nucleo.json
+/run/options.txt
+/run/saves/Mundo nuevo/entities/r.0.0.mca
+/run/saves/Mundo nuevo/poi/r.0.0.mca
+/run/saves/Mundo nuevo/region/r.0.0.mca
+/run/saves/Mundo nuevo/poi/r.0.1.mca
+/run/saves/Mundo nuevo/region/r.0.1.mca
+/run/saves/Mundo nuevo/entities/r.0.-1.mca
+/run/saves/Mundo nuevo/poi/r.0.-1.mca
+/run/saves/Mundo nuevo/region/r.0.-1.mca
+/run/saves/Mundo nuevo/entities/r.-1.0.mca
+/run/saves/Mundo nuevo/poi/r.-1.0.mca
+/run/saves/Mundo nuevo/region/r.-1.0.mca
+/run/saves/Mundo nuevo/poi/r.-1.1.mca
+/run/saves/Mundo nuevo/region/r.-1.1.mca
+/run/saves/Mundo nuevo/entities/r.-1.-1.mca
+/run/saves/Mundo nuevo/poi/r.-1.-1.mca
+/run/saves/Mundo nuevo/region/r.-1.-1.mca
+/run/saves/Mundo nuevo/data/raids.dat
+/run/saves/Mundo nuevo/DIM-1/data/raids.dat
+/run/saves/Mundo nuevo/DIM1/data/raids_end.dat
+/run/saves/Mundo nuevo/data/random_sequences.dat
+/run/saves/Mundo nuevo/session.lock
+/src/main/resources/assets/vicefinal/animations/entity/srtiempo.animation.json
+/src/main/resources/assets/vicefinal/textures/entity/srtiempo.png
+/run/.fabric/processedMods/txnilib-1.0.23-64b5720b4b825f21.jar
+/run/mods/txnilib-fabric-1.0.23-1.20.1 (1).jar
+/.idea/modules/ViceFinal.client.iml
+/.idea/modules/ViceFinal.main.iml
+/.idea/modules/ViceFinal.test.iml
+/src/main/resources/assets/vicefinal/blockstates/nucleo.json
+/src/main/resources/assets/vicefinal/textures/block/nucleo.png
+/src/main/resources/assets/vicefinal/geo/entity/srtiempo.geo.json
